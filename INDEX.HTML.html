@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NourishFit — Your Personal Wellness Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f0e;--card:#131918;--card2:#1a2120;
+  --g1:#00c896;--g2:#00a97a;
+  --gold:#f5a623;--red:#e05252;--blue:#4a9eff;
+  --text:#f0f4f3;--muted:#7a9490;--border:#1e2d2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* LANDING */
+#landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative;}
+#landing::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,200,150,0.12),transparent 70%);pointer-events:none;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(36px,7vw,68px);font-weight:700;color:var(--text);letter-spacing:-1px;margin-bottom:8px;animation:fadeUp .8s ease both;}
+.logo span{color:var(--g1);}
+.tagline{font-size:clamp(13px,2vw,17px);color:var(--muted);margin-bottom:44px;animation:fadeUp .8s .15s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:clamp(22px,4vw,44px);width:100%;max-width:660px;box-shadow:0 32px 80px rgba(0,0,0,0.5);animation:fadeUp .8s .3s ease both;}
+.form-title{font-family:'Playfair Display',serif;font-size:21px;margin-bottom:5px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:26px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.fg input,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus{border-color:var(--g1);}
+.fg select option{background:#1a2120;}
+.rg{display:flex;gap:7px;flex-wrap:wrap;}
+.rb{flex:1;min-width:76px;background:var(--card2);border:2px solid var(--border);border-radius:10px;padding:9px 7px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:all .2s;user-select:none;}
+.rb.active{border-color:var(--g1);color:var(--g1);background:rgba(0,200,150,0.08);}
+.rb:hover:not(.active){border-color:var(--g1);opacity:.8;}
+.gen-btn{width:100%;margin-top:22px;background:linear-gradient(135deg,var(--g1),var(--g2));border:none;border-radius:13px;padding:15px;color:#000;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,200,150,.35);}
+
+/* LOADING */
+#loading{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+.spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--g1);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-size:15px;color:var(--muted);animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* PLAN PAGE */
+#planPage{display:none;max-width:1180px;margin:0 auto;padding:28px 18px 60px;}
+.plan-hdr{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.plan-hdr h1{font-family:'Playfair Display',serif;font-size:clamp(19px,4vw,32px);}
+.plan-hdr h1 span{color:var(--g1);}
+.plan-hdr p{color:var(--muted);font-size:13px;margin-top:3px;}
+.back-btn{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 18px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.back-btn:hover{border-color:var(--g1);color:var(--g1);}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:26px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.sc .sv{font-size:19px;font-weight:800;color:var(--g1);display:block;}
+.sc .sl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
+.sc .ss{font-size:10px;color:var(--muted);margin-top:2px;}
+.sc.warn .sv{color:var(--gold);}
+.sc.danger .sv{color:var(--red);}
+
+/* SECTION HEAD */
+.sec-hd{display:flex;align-items:center;gap:11px;margin:32px 0 16px;}
+.sec-hd h2{font-family:'Playfair Display',serif;font-size:22px;}
+.sec-hd .dot{width:9px;height:9px;border-radius:50%;background:var(--g1);flex-shrink:0;}
+.sec-hd .ln{flex:1;height:1px;background:var(--border);}
+
+/* DIET TABS */
+.dtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px;}
+.dtab{padding:7px 15px;border-radius:18px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.dtab.active{background:var(--g1);border-color:var(--g1);color:#000;}
+.dtab:hover:not(.active){border-color:var(--g1);color:var(--g1);}
+.dc{display:none;}
+.dc.active{display:block;}
+
+/* MEAL CARD */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--card2);gap:8px;flex-wrap:wrap;}
+.mhl{display:flex;align-items:center;gap:9px;}
+.mtb{background:rgba(0,200,150,.12);border:1px solid rgba(0,200,150,.2);color:var(--g1);padding:3px 9px;border-radius:18px;font-size:10px;font-weight:700;white-space:nowrap;}
+.mnh{font-weight:800;font-size:14px;}
+.msb{font-size:11px;color:var(--muted);}
+.mkc{color:var(--gold);font-size:12px;font-weight:700;white-space:nowrap;}
+.swpb{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.22);color:var(--gold);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.swpb:hover{background:rgba(245,166,35,.2);}
+.mb{padding:14px 18px;}
+.mdesc{font-size:12px;color:var(--muted);margin-bottom:11px;}
+.qg{display:grid;grid-template-columns:1fr auto auto;gap:3px 14px;margin-bottom:12px;}
+.qr{display:contents;}
+.qr span{font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);}
+.qr span:nth-child(2){color:var(--g1);font-weight:700;text-align:right;}
+.qr span:last-child{color:var(--muted);text-align:right;}
+.qh span{font-size:10px!important;text-transform:uppercase;letter-spacing:.9px;color:var(--muted)!important;font-weight:700;}
+.mcs{display:flex;gap:7px;flex-wrap:wrap;}
+.mp{flex:1;min-width:64px;background:var(--card2);border-radius:9px;padding:9px;text-align:center;border:1px solid var(--border);}
+.mp .mv{display:block;font-size:14px;font-weight:800;}
+.mp .ml{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+.mp.pp .mv{color:#64b5f6;}
+.mp.cc .mv{color:#ffcc02;}
+.mp.ff .mv{color:#ef9a9a;}
+.mp.kk .mv{color:var(--g1);}
+.swpp{display:none;border-top:1px solid var(--border);padding:14px 18px;background:rgba(245,166,35,.03);}
+.swpp.open{display:block;}
+.swpp h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:10px;font-weight:800;}
+.sis{display:flex;flex-direction:column;gap:7px;}
+.si{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
+.si:hover{border-color:var(--gold);}
+.si-n{font-weight:700;font-size:13px;}
+.si-m{font-size:11px;color:var(--muted);margin-top:2px;}
+.si-m b{color:var(--g1);}
+.ub{background:var(--g1);color:#000;border:none;padding:5px 11px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;}
+.dtot{background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(0,200,150,.02));border:1px solid rgba(0,200,150,.18);border-radius:12px;padding:16px 20px;margin-top:6px;}
+.dtot h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--g1);margin-bottom:10px;font-weight:800;}
+
+/* GYM TABS */
+.gtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px;}
+.gtab{padding:7px 15px;border-radius:18px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.gtab.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.gtab:hover:not(.active){border-color:var(--blue);color:var(--blue);}
+.gdb{display:none;}
+
+/* EXERCISE CARD */
+.exc{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden;}
+.ext{background:var(--card2);padding:13px 18px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
+.etbadge{padding:3px 11px;border-radius:18px;font-size:10px;font-weight:800;white-space:nowrap;}
+.bwarm{background:rgba(255,152,0,.15);color:#ff9800;}
+.bstr{background:rgba(74,158,255,.15);color:#4a9eff;}
+.bcard{background:rgba(0,200,150,.15);color:var(--g1);}
+.bcore{background:rgba(186,104,200,.15);color:#ba68c8;}
+.ex-ti{font-weight:800;font-size:15px;}
+.ex-eq{font-size:11px;color:var(--muted);margin-top:2px;}
+.exb{display:grid;grid-template-columns:1fr 280px;}
+.exd{padding:15px 18px;border-right:1px solid var(--border);}
+.expills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px;}
+.epill{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;}
+.epill b{color:var(--g1);}
+.etip{background:rgba(0,200,150,.06);border-left:3px solid var(--g1);padding:9px 11px;border-radius:0 7px 7px 0;font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* VIDEO PANEL */
+.gifp{background:#111;display:flex;flex-direction:column;align-items:stretch;min-height:210px;position:relative;overflow:hidden;}
+.gifp iframe{width:100%;height:210px;border:none;display:block;}
+.giflbl{background:rgba(0,0,0,.75);color:rgba(255,255,255,.65);font-size:10px;padding:6px 10px;text-align:center;}
+.giflbl b{color:var(--g1);}
+.giffall{display:flex;flex-direction:column;align-items:center;justify-content:center;height:210px;gap:8px;padding:16px;text-align:center;}
+.giffall .gi{font-size:44px;}
+.giffall p{font-size:11px;color:var(--muted);}
+
+/* REST CARD */
+.rc{background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:36px;text-align:center;}
+.rc .bi{font-size:48px;margin-bottom:12px;}
+.rc h3{font-family:'Playfair Display',serif;font-size:21px;color:var(--g1);margin-bottom:9px;}
+.rc p{color:var(--muted);font-size:13px;line-height:1.7;max-width:480px;margin:0 auto;}
+.rchips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:16px;}
+.rchip{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 13px;font-size:12px;color:var(--muted);}
+
+@media(max-width:680px){
+  .form-grid{grid-template-columns:1fr;}
+  .fg.full{grid-column:1;}
+  .exb{grid-template-columns:1fr;}
+  .exd{border-right:none;border-bottom:1px solid var(--border);}
+  .plan-hdr{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<section id="landing">
+  <div class="logo">Nourish<span>Fit</span></div>
+  <p class="tagline">Enter your details · Get a personalised Kerala meal plan &amp; gym programme</p>
+  <div class="form-card">
+    <div class="form-title">Tell us about yourself</div>
+    <div class="form-sub">We calculate your exact calories, macros and build your full 7-day plan.</div>
+    <div class="form-grid">
+      <div class="fg"><label>Your Name</label><input type="text" id="iName" placeholder="e.g. Priya"></div>
+      <div class="fg"><label>Age</label><input type="number" id="iAge" placeholder="e.g. 28" min="15" max="80"></div>
+      <div class="fg"><label>Height (cm)</label><input type="number" id="iHeight" placeholder="e.g. 152" min="100" max="230"></div>
+      <div class="fg"><label>Current Weight (kg)</label><input type="number" id="iWeight" placeholder="e.g. 75" min="30" max="250"></div>
+      <div class="fg"><label>Goal Weight (kg)</label><input type="number" id="iGoal" placeholder="e.g. 55" min="30" max="250"></div>
+      <div class="fg"><label>Gender</label>
+        <select id="iGender"><option value="female">Female</option><option value="male">Male</option></select>
+      </div>
+      <div class="fg full"><label>Food Preference</label>
+        <div class="rg" id="rFood">
+          <div class="rb active" data-val="nonveg">🍗 Non-Veg</div>
+          <div class="rb" data-val="veg">🥦 Vegetarian</div>
+          <div class="rb" data-val="vegan">🌱 Vegan</div>
+          <div class="rb" data-val="eggetarian">🥚 Eggetarian</div>
+        </div>
+      </div>
+      <div class="fg full"><label>Gym Days Per Week</label>
+        <div class="rg" id="rGym">
+          <div class="rb" data-val="3">3 Days</div>
+          <div class="rb active" data-val="4">4 Days</div>
+          <div class="rb" data-val="5">5 Days</div>
+        </div>
+      </div>
+      <div class="fg full"><label>Fitness Level</label>
+        <div class="rg" id="rLevel">
+          <div class="rb active" data-val="beginner">🌱 Beginner</div>
+          <div class="rb" data-val="intermediate">💪 Intermediate</div>
+          <div class="rb" data-val="advanced">🔥 Advanced</div>
+        </div>
+      </div>
+    </div>
+    <button class="gen-btn" onclick="gen()">✨ Generate My Plan</button>
+  </div>
+</section>
+
+<!-- LOADING -->
+<section id="loading">
+  <div class="spinner"></div>
+  <p class="load-txt">Building your personalised plan…</p>
+</section>
+
+<!-- PLAN PAGE -->
+<section id="planPage">
+  <div class="plan-hdr">
+    <div><h1>Your Plan, <span id="pName"></span></h1><p id="pSub"></p></div>
+    <button class="back-btn" onclick="goBack()">← Start Over</button>
+  </div>
+  <div class="stats-bar" id="statsEl"></div>
+
+  <div class="sec-hd"><div class="dot"></div><h2>🍛 7-Day Meal Plan</h2><div class="ln"></div></div>
+  <div class="dtabs" id="dTabsEl"></div>
+  <div id="dDaysEl"></div>
+
+  <div class="sec-hd"><div class="dot" style="background:var(--blue)"></div><h2>🏋️ Gym Workout Plan</h2><div class="ln"></div></div>
+  <div class="gtabs" id="gTabsEl"></div>
+  <div id="gDaysEl"></div>
+</section>
+
+<script>
+// ── radio buttons ──
+document.querySelectorAll('.rg').forEach(g=>{
+  g.querySelectorAll('.rb').forEach(b=>{
+    b.addEventListener('click',()=>{
+      g.querySelectorAll('.rb').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+});
+function rv(id){ return document.querySelector('#'+id+' .rb.active')?.dataset.val||''; }
+
+// ── calc ──
+function calcKcal(w,h,age,sex,gd){
+  let bmr=sex==='female'?10*w+6.25*h-5*age-161:10*w+6.25*h-5*age+5;
+  let mul=gd>=5?1.55:gd>=4?1.46:1.375;
+  return Math.max(1200,Math.round(bmr*mul-500));
+}
+function bmi(w,h){ return (w/((h/100)**2)).toFixed(1); }
+function bmiL(b){ return b<18.5?['Underweight','warn']:b<25?['Healthy','']:b<30?['Overweight','warn']:['Obese','danger']; }
+
+// ── VIDEO DATABASE ──
+// YouTube Shorts — embedded as iframes, unique video per exercise
+const GIFS={
+  'Incline Treadmill Walk':    {yt:'XBOX7qPKrIs', eq:'Treadmill',                   mu:'Full Body Cardio'},
+  'Goblet Squat':              {yt:'lRYBbchqxtI', eq:'Dumbbell / Kettlebell',        mu:'Quads · Glutes · Core'},
+  'Leg Press':                 {yt:'EotSw18oR9w', eq:'Leg Press Machine',            mu:'Quads · Hamstrings'},
+  'Walking Lunges':            {yt:'mJilHWIBWO8', eq:'Dumbbells / Bodyweight',       mu:'Quads · Glutes · Hamstrings'},
+  'Glute Bridge / Hip Thrust': {yt:'x6nzJbGIiOo', eq:'Mat / Bench + Barbell',        mu:'Glutes · Hamstrings'},
+  'Lying Leg Curl':            {yt:'FMCq0hT3KRU', eq:'Leg Curl Machine',             mu:'Hamstrings'},
+  'Calf Raises':               {yt:'wdOkFomQNp8', eq:'Step Platform / Machine',      mu:'Calves'},
+  'Stationary Bike':           {yt:'NY4_GJnrfKQ', eq:'Stationary Bike',              mu:'Legs · Cardio'},
+  'Dumbbell Chest Press':      {yt:'Cj96ZZlmJRU', eq:'Flat Bench + Dumbbells',       mu:'Chest · Triceps · Shoulders'},
+  'Seated Cable Row':          {yt:'LyZH4UGdDTc', eq:'Cable Row Machine',            mu:'Back · Biceps'},
+  'Lat Pulldown':              {yt:'bNmvKpJSWKM', eq:'Lat Pulldown Machine',          mu:'Lats · Biceps'},
+  'Dumbbell Shoulder Press':   {yt:'k6tzKisR3NY', eq:'Dumbbells / Press Machine',    mu:'Shoulders · Triceps'},
+  'Bicep Curl':                {yt:'MKWBV29S6c0', eq:'Dumbbells / Barbell',           mu:'Biceps'},
+  'Tricep Pushdown':           {yt:'1FjkhpZsaxc', eq:'Cable Machine',                mu:'Triceps'},
+  'Romanian Deadlift':         {yt:'5rIqP63yWFg', eq:'Barbell / Dumbbells',           mu:'Hamstrings · Glutes · Lower Back'},
+  'Push-ups':                  {yt:'4Bc1tPaYkOo', eq:'Gym Floor / Mat',              mu:'Chest · Triceps · Core'},
+  'Kettlebell Swings':         {yt:'n1df4ASFeZU', eq:'Kettlebell (8–12 kg)',          mu:'Glutes · Hamstrings · Core · Shoulders'},
+  'Box Step-ups':              {yt:'EQKg5Gg2PNs', eq:'Plyometric Box / Bench',       mu:'Quads · Glutes · Core'},
+  'Dumbbell Thrusters':        {yt:'5p7xFs_Hld4', eq:'Dumbbells (4–6 kg each)',      mu:'Full Body — Legs + Shoulders'},
+  'Elliptical':                {yt:'G1H_WKqifsc', eq:'Elliptical Trainer',           mu:'Full Body Cardio'},
+  'Dynamic Warm-up':           {yt:'EtbyY48FT2s', eq:'Open Floor',                   mu:'Full Body Mobility'},
+  'Jump Rope':                 {yt:'JX3HAYG2mEU', eq:'Jump Rope',                    mu:'Cardio · Calves · Coordination'},
+  'Plank':                     {yt:'xe2MXatLTUw', eq:'Gym Mat',                      mu:'Core · Shoulders · Glutes'},
+  'Bicycle Crunches':          {yt:'_I2Fiy7ueNw', eq:'Gym Mat',                      mu:'Abs · Obliques'},
+  'Leg Raises':                {yt:'Gw_3oAQyHXA', eq:'Gym Mat / Roman Chair',        mu:'Lower Abs · Hip Flexors'},
+  'Russian Twists':            {yt:'aRUMRbl7KS4', eq:'Mat + Dumbbell',               mu:'Obliques · Core'},
+  'Cable Woodchop':            {yt:'_yaPTxjJpwg', eq:'Cable Machine',                mu:'Obliques · Core · Shoulders'},
+};
+
+// ── GYM PLAN ──
+function gymPlan(gd,lvl){
+  const is3=gd==3, beg=lvl==='beginner';
+  return [
+    {day:'Monday',   type:'Lower Body 🦵',      gym:true, exs:[
+      {nm:'Incline Treadmill Walk',   t:'warmup',   s:'10 min',  r:'Speed 5–6 km/h · Incline 3%',       tip:'Warms up the body. Aim for 110–120 BPM heart rate.'},
+      {nm:'Goblet Squat',            t:'strength', s:beg?'3':'4',r:beg?'12 reps':'15 reps',              tip:'Feet shoulder-width. Knees over toes. Core tight throughout.'},
+      {nm:'Leg Press',               t:'strength', s:'3',        r:'12 reps · Start 30–40 kg',           tip:'Don\'t lock knees at top. Full range of motion.'},
+      {nm:'Walking Lunges',          t:'strength', s:'3',        r:'12 each leg',                        tip:'Step far enough so front knee stays behind toes.'},
+      {nm:'Glute Bridge / Hip Thrust',t:'strength',s:'4',        r:'20 reps',                            tip:'Squeeze glutes at top. Best glute exercise for women!'},
+      {nm:'Lying Leg Curl',          t:'strength', s:'3',        r:'12 reps',                            tip:'3-second slow lower. Builds hamstrings and knee health.'},
+      {nm:'Calf Raises',             t:'strength', s:'3',        r:'25 reps',                            tip:'Full range. Hold at top 1 sec. Feel the burn in calves!'},
+    ]},
+    {day:'Tuesday',  type:'Active Rest 🚶',     gym:false},
+    {day:'Wednesday',type:'Upper Body 💪',      gym:true, exs:[
+      {nm:'Stationary Bike',         t:'warmup',   s:'8–10 min', r:'Moderate resistance',                tip:'Perfect warm-up that doesn\'t tire your legs from Monday.'},
+      {nm:'Dumbbell Chest Press',    t:'strength', s:'4',        r:'12 reps · Start 4–5 kg each',        tip:'Lower slowly (3 sec). Press up powerfully. Elbows 45°.'},
+      {nm:'Seated Cable Row',        t:'strength', s:'3',        r:'12 reps',                            tip:'Sit tall. Pull to belly button. Squeeze shoulder blades.'},
+      {nm:'Lat Pulldown',            t:'strength', s:'3',        r:'12 reps',                            tip:'Lean slightly back. Pull bar to upper chest with elbows.'},
+      {nm:'Dumbbell Shoulder Press', t:'strength', s:'3',        r:'12 reps · Start 3–4 kg each',        tip:'Core tight. Don\'t arch lower back. Press straight up.'},
+      {nm:'Bicep Curl',              t:'strength', s:'3',        r:'15 reps',                            tip:'Full range of motion. Control the lowering phase.'},
+      {nm:'Tricep Pushdown',         t:'strength', s:'3',        r:'15 reps',                            tip:'Elbows glued to sides. Squeeze at the bottom of each rep.'},
+    ]},
+    {day:'Thursday', type:'Rest Day 😴',        gym:false},
+    {day:'Friday',   type:'Full Body HIIT 🔥',  gym:true, exs:[
+      {nm:'Dynamic Warm-up',         t:'warmup',   s:'5 min',    r:'Arm circles · Leg swings · Hip rotations', tip:'Never skip! Prevents injury and boosts performance.'},
+      {nm:'Romanian Deadlift',       t:'strength', s:'4',        r:'10 reps · Start 10–15 kg',          tip:'Hinge at hip. Back flat. Feel stretch in hamstrings.'},
+      {nm:'Push-ups',                t:'strength', s:'4',        r:beg?'10 reps (modified ok)':'15 reps',tip:'Modified (on knees) is fine. Build up to full push-up.'},
+      {nm:'Kettlebell Swings',       t:'strength', s:'4',        r:'15 reps · 8–12 kg',                 tip:'Power from HIPS not arms! Most calorie-burning exercise.'},
+      {nm:'Box Step-ups',            t:'strength', s:'3',        r:'12 each leg',                        tip:'Drive opposite knee up at top. Bodyweight first.'},
+      {nm:'Dumbbell Thrusters',      t:'strength', s:'3',        r:'12 reps · 4–6 kg each',             tip:'Squat down, press up when rising. Full body in one move!'},
+      {nm:'Elliptical',              t:'cardio',   s:'20 min',   r:'30 sec high / 30 sec low × 20',     tip:'Burns 180–220 kcal! High resistance on sprint intervals.'},
+    ]},
+    {day:'Saturday', type:is3?'Rest Day 😴':'Core + Cardio 🎯', gym:!is3, exs:[
+      {nm:'Jump Rope',               t:'warmup',   s:'10 min',   r:'5 min easy + 5 min moderate',        tip:'Burns 10 kcal/min. Best warm-up tool in the gym!'},
+      {nm:'Plank',                   t:'core',     s:'3 rounds', r:'Front 45 sec + Side 30 sec each',    tip:'Full body tension. Breathe steadily. Don\'t hold breath.'},
+      {nm:'Bicycle Crunches',        t:'core',     s:'4',        r:'20 reps (slow and controlled)',      tip:'#1 most effective ab exercise. Slow movement = better!'},
+      {nm:'Leg Raises',              t:'core',     s:'3',        r:'15 reps',                            tip:'Press lower back into floor. Straight legs = harder version.'},
+      {nm:'Russian Twists',          t:'core',     s:'3',        r:'20 reps (10 each side)',             tip:'Hold 4–5 kg dumbbell. Back at 45°. Great for waist!'},
+      {nm:'Cable Woodchop',          t:'core',     s:'3',        r:'12 each side',                       tip:'Rotate from hips not arms. Functional core movement.'},
+      {nm:'Elliptical',              t:'cardio',   s:'30 min',   r:'Steady 60–65% max HR',              tip:'Fat-burning zone. Heart rate 110–130 BPM. Burns stored fat!'},
+    ]},
+    {day:'Sunday',   type:'Full Rest 🌿',       gym:false},
+  ];
+}
+
+// ── MEAL DATA ──
+let CP=[];
+function mealData(kcal,pref){
+  const veg=pref==='veg'||pref==='vegan', s=kcal/1400;
+  const W=[
+    {n:'Lemon Cumin Water',       d:'Metabolism booster, gentle detox',    i:[['Warm water','300 ml','1¼ cup'],['Lemon juice','15 ml','1 tbsp'],['Cumin powder','1 g','¼ tsp']],            m:{p:'0g',c:'2g',f:'0g',k:8}},
+    {n:'Turmeric Ginger Water',   d:'Anti-inflammatory morning ritual',     i:[['Warm water','300 ml','1¼ cup'],['Turmeric','1 g','¼ tsp'],['Ginger grated','3 g','small pc'],['Black pepper','pinch','pinch']], m:{p:'0g',c:'1g',f:'0g',k:6}},
+    {n:'Jeera Water',             d:'Digestion aid, traditional Kerala',    i:[['Water (soaked overnight)','300 ml','1¼ cup'],['Cumin seeds','3 g','1 tsp']],                          m:{p:'0g',c:'1g',f:'0g',k:5}},
+    {n:'Fenugreek Seed Water',    d:'Controls blood sugar, reduces fat',    i:[['Water (soaked overnight)','250 ml','1 cup'],['Fenugreek seeds','3 g','½ tsp']],                       m:{p:'0g',c:'1.5g',f:'0g',k:10}},
+    {n:'ACV Water',               d:'Reduces appetite, boosts digestion',   i:[['Warm water','300 ml','1¼ cup'],['Raw apple cider vinegar','15 ml','1 tbsp']],                         m:{p:'0g',c:'1g',f:'0g',k:5}},
+  ];
+  const BF=veg?[
+    {n:'Ragi Puttu + Kadala Curry',d:'High fibre + protein Kerala breakfast', i:[['Ragi flour','60 g','½ cup'],['Grated coconut','10 g','1 tbsp'],['Black chickpea cooked','80 g','½ cup'],['Onion','30 g','1 small'],['Coconut oil','3 ml','½ tsp']], m:{p:'18g',c:'58g',f:'8g',k:Math.round(385*s)}},
+    {n:'Idli + Sambar + Chutney',  d:'Fermented rice — gut health superstar', i:[['Idli batter','180 g','3 idlis'],['Thin sambar','150 ml','½ cup'],['Green coconut chutney','30 g','2 tbsp']], m:{p:'14g',c:'60g',f:'6g',k:Math.round(380*s)}},
+    {n:'Ragi Kanji (Porridge)',    d:'Kerala millet porridge, iron + calcium',i:[['Ragi flour','80 g','⅔ cup'],['Low-fat milk','200 ml','¾ cup'],['Jaggery','5 g','1 tsp'],['Cardamom + ginger','to taste','—']], m:{p:'12g',c:'62g',f:'4g',k:Math.round(375*s)}},
+    {n:'Wheat Dosa + Moong Dal',   d:'High protein, quick to prepare',       i:[['Whole wheat flour','60 g','½ cup'],['Moong dal cooked','80 g','½ cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'19g',c:'55g',f:'5g',k:Math.round(370*s)}},
+    {n:'Oats Upma Kerala Style',   d:'Kerala-spiced oats with vegetables',   i:[['Rolled oats','75 g','¾ cup'],['Mixed veg','50 g','½ cup'],['Mustard, curry leaves','to taste','—'],['Coconut oil','3 ml','½ tsp']], m:{p:'13g',c:'52g',f:'6g',k:Math.round(320*s)}},
+  ]:[
+    {n:'Ragi Puttu + Kadala Curry',d:'Traditional Kerala breakfast',         i:[['Ragi flour','60 g','½ cup'],['Grated coconut','10 g','1 tbsp'],['Black chickpea cooked','80 g','½ cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'18g',c:'58g',f:'8g',k:Math.round(385*s)}},
+    {n:'Appam + Egg Curry',        d:'High protein Kerala breakfast',        i:[['Rice batter (appam)','120 g','2 small appams'],['Eggs','2','120 g'],['Onion+tomato curry base','60 g','—'],['Coconut oil','3 ml','½ tsp']], m:{p:'22g',c:'48g',f:'11g',k:Math.round(395*s)}},
+    {n:'Oats Upma + Boiled Egg',   d:'Protein-packed Kerala oats',           i:[['Rolled oats','75 g','¾ cup'],['Mixed veg','50 g','½ cup'],['Egg boiled','1','60 g'],['Curry leaves, mustard','to taste','—']], m:{p:'20g',c:'52g',f:'9g',k:Math.round(390*s)}},
+    {n:'Idli + Sambar + Egg',      d:'Classic Kerala combo + protein',       i:[['Idli batter','180 g','3 idlis'],['Thin sambar','150 ml','½ cup'],['Boiled egg','1','60 g'],['Chutney','20 g','1 tbsp']], m:{p:'18g',c:'56g',f:'8g',k:Math.round(390*s)}},
+    {n:'Wheat Dosa + Dal + Egg',   d:'Power breakfast, full macros',         i:[['Whole wheat flour','60 g','½ cup'],['Moong dal cooked','60 g','½ cup'],['Scrambled egg','1','60 g'],['Coconut oil','3 ml','½ tsp']], m:{p:'22g',c:'50g',f:'8g',k:Math.round(380*s)}},
+  ];
+  const S1=[
+    {n:'Spiced Buttermilk + Papaya',d:'Probiotic + digestive enzymes',      i:[['Low-fat curd','100 ml','½ cup'],['Water','100 ml','dilute'],['Ripe papaya','150 g','1 cup'],['Ginger + curry leaves','to taste','—']], m:{p:'5g',c:'18g',f:'2g',k:115}},
+    {n:'Sprouts Salad',             d:'High protein, very low calorie',     i:[['Mixed sprouts','60 g','½ cup'],['Grated carrot','30 g','¼ cup'],['Lemon juice','10 ml','2 tsp'],['Rock salt + chili','to taste','—']], m:{p:'7g',c:'16g',f:'1g',k:105}},
+    {n:'Boiled Egg + Cucumber',     d:'Quick protein snack',                i:[['Boiled egg','1','60 g'],['Cucumber sliced','100 g','1 cup'],['Rock salt + lemon','to taste','—']], m:{p:'8g',c:'4g',f:'5g',k:95}},
+    {n:'Coconut Water + Almonds',   d:'Electrolytes + healthy fat',         i:[['Tender coconut water','200 ml','¾ cup'],['Raw almonds','14 g','10 pieces']], m:{p:'4g',c:'14g',f:'8g',k:125}},
+    {n:'Guava + Black Salt',        d:'Highest fibre fruit, very filling',  i:[['Fresh guava','150 g','1 medium'],['Black salt + chili powder','to taste','—']], m:{p:'2g',c:'20g',f:'0.5g',k:90}},
+  ];
+  const LN=veg?[
+    {n:'Brown Rice + Sambar + Thoran',d:'Complete Kerala lunch, full fibre',  i:[['Brown rice cooked','120 g','¾ cup'],['Toor dal sambar','30 g','2 tbsp'],['Mixed veg','100 g','1 cup'],['Beans thoran','80 g','½ cup'],['Grated coconut','10 g','1 tbsp'],['Coconut oil','3 ml','½ tsp']], m:{p:'16g',c:'72g',f:'7g',k:Math.round(435*s)}},
+    {n:'Red Rice + Avial + Rasam',    d:'Sadya-style healthy thali',          i:[['Red rice cooked','120 g','¾ cup'],['Avial (mixed veg+yogurt)','150 g','1 cup'],['Tomato pepper rasam','200 ml','1 cup']], m:{p:'12g',c:'68g',f:'8g',k:Math.round(420*s)}},
+    {n:'Matta Rice + Olan + Thoran',  d:'Traditional Kerala sadya meal',      i:[['Matta rice cooked','100 g','⅔ cup'],['Olan ash gourd+cowpea','150 g','1 cup'],['Cabbage thoran','80 g','½ cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'13g',c:'65g',f:'7g',k:Math.round(420*s)}},
+    {n:'2 Chappathi + Dal + Sabzi',   d:'North Kerala lunch option',          i:[['Whole wheat chappathi','2 pcs','60 g flour'],['Toor dal cooked','80 g','½ cup'],['Mixed veg stir-fry','100 g','1 cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'18g',c:'65g',f:'6g',k:Math.round(430*s)}},
+    {n:'Brown Rice + Parippu + Pachadi',d:'Kerala sadya lite thali',          i:[['Brown rice cooked','100 g','⅔ cup'],['Parippu dal curry','100 g','½ cup'],['Beetroot pachadi','80 g','½ cup'],['Baked pappadam','10 g','1 pc']], m:{p:'14g',c:'66g',f:'7g',k:Math.round(425*s)}},
+  ]:[
+    {n:'Brown Rice + Sambar + Thoran',d:'Complete Kerala lunch',             i:[['Brown rice cooked','120 g','¾ cup'],['Toor dal sambar','30 g','2 tbsp'],['Mixed veg','100 g','1 cup'],['Beans thoran','80 g','½ cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'16g',c:'72g',f:'7g',k:Math.round(435*s)}},
+    {n:'Matta Rice + Fish Curry + Cheera',d:'Omega-3 rich Kerala classic',   i:[['Matta rice cooked','100 g','⅔ cup'],['Fish cooked','80 g','1 piece'],['Thin coconut milk','50 ml','3 tbsp'],['Spinach stir-fry','100 g','1 cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'24g',c:'58g',f:'9g',k:Math.round(445*s)}},
+    {n:'Red Rice + Chicken Stew + Avial',d:'High protein Kerala lunch',      i:[['Red rice cooked','100 g','⅔ cup'],['Chicken skinless cooked','100 g','small portion'],['Thin coconut milk','50 ml','3 tbsp'],['Avial mixed veg','100 g','½ cup']], m:{p:'28g',c:'54g',f:'10g',k:Math.round(440*s)}},
+    {n:'Brown Rice + Prawn Masala + Thoran',d:'Iron + protein power lunch', i:[['Brown rice cooked','100 g','⅔ cup'],['Prawns cooked','80 g','10–12 pieces'],['Spinach stir-fry','100 g','1 cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'28g',c:'56g',f:'8g',k:Math.round(440*s)}},
+    {n:'Matta Rice + Fish Molly + Cabbage',d:'Sunday special, light + filling',i:[['Matta rice cooked','100 g','⅔ cup'],['Fish in thin coconut milk','80 g','1 piece'],['Cabbage thoran','100 g','1 cup'],['Coconut oil','3 ml','½ tsp']], m:{p:'22g',c:'58g',f:'10g',k:Math.round(442*s)}},
+  ];
+  const S2=[
+    {n:'Black Tea + Small Banana',  d:'Pre-gym natural energy boost',       i:[['Black/green tea','200 ml','1 cup no sugar'],['Banana small','80 g','1 small']], m:{p:'1g',c:'26g',f:'0.3g',k:115}},
+    {n:'Roasted Groundnuts + Tea',  d:'Healthy fat + antioxidants',         i:[['Roasted groundnuts','20 g','small handful'],['Green tea','200 ml','1 cup']], m:{p:'5g',c:'5g',f:'9g',k:120}},
+    {n:'Makhana (Fox Nuts)',         d:'Crunchy low-cal snack',              i:[['Dry roasted makhana','20 g','1 bowl'],['Black tea','200 ml','1 cup']], m:{p:'3g',c:'16g',f:'0.2g',k:75}},
+    {n:'Apple + Peanut Butter',     d:'Fibre + protein + healthy fat',      i:[['Small apple','120 g','1 piece'],['Natural peanut butter','10 g','1 tsp']], m:{p:'3g',c:'22g',f:'5g',k:130}},
+    {n:'Tender Coconut Water',      d:'Natural electrolytes, post-gym',     i:[['Tender coconut water','250 ml','1 glass']], m:{p:'0.5g',c:'12g',f:'0g',k:55}},
+  ];
+  const DN=veg?[
+    {n:'Oats Kanji + Stir-fry Veg',  d:'Light Kerala porridge, easy to digest at night', i:[['Rolled oats','50 g','½ cup'],['Water','300 ml','1¼ cup'],['Mixed veg stir-fry','100 g','1 cup'],['Curry leaves + ginger + pepper','to taste','—'],['Coconut oil','3 ml','½ tsp']], m:{p:'10g',c:'38g',f:'5g',k:Math.round(245*s)}},
+    {n:'Wheat Dosa + Sambar + Chutney',d:'Light digestible dinner',          i:[['Whole wheat flour','60 g','½ cup'],['Veg sambar','150 ml','½ cup'],['Green chutney','20 g','1 tbsp']], m:{p:'14g',c:'52g',f:'5g',k:Math.round(330*s)}},
+    {n:'Veg Soup + 2 Chappathi',     d:'Warm soup best for nighttime',      i:[['Mixed veg soup','250 ml','1 bowl'],['Wheat chappathi','2 pcs','40 g flour'],['Coconut oil','2 ml','—']], m:{p:'12g',c:'48g',f:'6g',k:Math.round(320*s)}},
+    {n:'Ragi Dosa + Chutney + Dal',  d:'Iron-rich light dinner',            i:[['Ragi flour','60 g','½ cup'],['Toor dal cooked','60 g','¼ cup'],['Coconut chutney','20 g','1 tbsp'],['Coconut oil','3 ml','½ tsp']], m:{p:'15g',c:'50g',f:'6g',k:Math.round(335*s)}},
+    {n:'Aval (Poha) Upma',           d:'Very light traditional evening meal',i:[['Red beaten rice aval','60 g','½ cup'],['Green peas','30 g','2 tbsp'],['Onion + mustard + curry leaves','20 g','—'],['Coconut oil','3 ml','½ tsp']], m:{p:'8g',c:'52g',f:'4g',k:Math.round(325*s)}},
+  ]:[
+    {n:'Oats Kanji + Scrambled Eggs',d:'High protein light dinner',         i:[['Rolled oats','50 g','½ cup'],['Water','300 ml','1¼ cup'],['Eggs whole','2','120 g'],['Curry leaves + ginger + pepper','to taste','—'],['Coconut oil','3 ml','½ tsp']], m:{p:'22g',c:'34g',f:'12g',k:Math.round(342*s)}},
+    {n:'Wheat Dosa + Sambar + Chutney',d:'Light digestible dinner',         i:[['Whole wheat flour','60 g','½ cup'],['Veg sambar','150 ml','½ cup'],['Green chutney','20 g','1 tbsp']], m:{p:'14g',c:'52g',f:'5g',k:Math.round(330*s)}},
+    {n:'Idiyappam + Veg Stew',       d:'Kerala string hoppers in light stew',i:[['Rice flour idiyappam','45 g','3 pieces'],['Veg stew light coconut milk 50ml','200 ml','1 cup'],['Carrot + beans + potato','60 g','—']], m:{p:'8g',c:'55g',f:'7g',k:Math.round(345*s)}},
+    {n:'Veg Soup + 2 Chappathi',     d:'Warm light dinner',                 i:[['Mixed veg soup','250 ml','1 bowl'],['Wheat chappathi','2 pcs','40 g flour'],['Coconut oil','2 ml','—']], m:{p:'12g',c:'48g',f:'6g',k:Math.round(320*s)}},
+    {n:'Ragi Dosa + Dal + Egg',      d:'Iron + protein night meal',         i:[['Ragi flour','60 g','½ cup'],['Toor dal cooked','60 g','¼ cup'],['Boiled egg','1','60 g'],['Coconut oil','3 ml','½ tsp']], m:{p:'20g',c:'48g',f:'8g',k:Math.round(355*s)}},
+  ];
+
+  return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map((day,i)=>({
+    day,
+    meals:[
+      {time:'6:30 AM', lbl:'Wake-up Drink',    main:W[i%W.length],    alts:W.filter((_,j)=>j!==i%W.length)},
+      {time:'8:00 AM', lbl:'Breakfast',         main:BF[i%BF.length],  alts:BF.filter((_,j)=>j!==i%BF.length)},
+      {time:'11:00 AM',lbl:'Mid-Morning Snack', main:S1[i%S1.length],  alts:S1.filter((_,j)=>j!==i%S1.length)},
+      {time:'1:30 PM', lbl:'Lunch',             main:LN[i%LN.length],  alts:LN.filter((_,j)=>j!==i%LN.length)},
+      {time:'4:30 PM', lbl:'Evening Snack',     main:S2[i%S2.length],  alts:S2.filter((_,j)=>j!==i%S2.length)},
+      {time:'7:30 PM', lbl:'Dinner',            main:DN[i%DN.length],  alts:DN.filter((_,j)=>j!==i%DN.length)},
+    ]
+  }));
+}
+
+// ── RENDER MEAL CARD ──
+function rMeal(meal,mi,di){
+  const m=meal.main;
+  const ing=m.i.map(r=>`<div class="qr"><span>${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span></div>`).join('');
+  const alt=meal.alts.map((a,ai)=>`
+    <div class="si">
+      <div><div class="si-n">${a.n}</div>
+      <div class="si-m">P:<b>${a.m.p}</b> · C:<b>${a.m.c}</b> · F:<b>${a.m.f}</b> · <b>${a.m.k} kcal</b></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:1px;">${a.d||''}</div></div>
+      <button class="ub" onclick="swp(${di},${mi},${ai})">Use This</button>
+    </div>`).join('');
+  return `<div class="mc" id="mc-${di}-${mi}">
+    <div class="mh">
+      <div class="mhl">
+        <span class="mtb">${meal.time}</span>
+        <div><div class="mnh">${meal.lbl}</div><div class="msb">${m.n}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <span class="mkc">${m.m.k} kcal</span>
+        <button class="swpb" onclick="tswp(this)">🔄 Change</button>
+      </div>
+    </div>
+    <div class="mb">
+      <div class="mdesc">${m.d||''}</div>
+      <div class="qg">
+        <div class="qr qh"><span>Ingredient</span><span>Amount</span><span>Measure</span></div>
+        ${ing}
+      </div>
+      <div class="mcs">
+        <div class="mp pp"><span class="mv">${m.m.p}</span><span class="ml">Protein</span></div>
+        <div class="mp cc"><span class="mv">${m.m.c}</span><span class="ml">Carbs</span></div>
+        <div class="mp ff"><span class="mv">${m.m.f}</span><span class="ml">Fat</span></div>
+        <div class="mp kk"><span class="mv">${m.m.k}</span><span class="ml">kcal</span></div>
+      </div>
+    </div>
+    <div class="swpp"><h4>🔄 Swap Options</h4><div class="sis">${alt}</div></div>
+  </div>`;
+}
+function swp(di,mi,ai){
+  const meal=CP[di].meals[mi];
+  const ch=meal.alts[ai]; meal.alts[ai]=meal.main; meal.main=ch;
+  const el=document.getElementById('mc-'+di+'-'+mi);
+  const tmp=document.createElement('div'); tmp.innerHTML=rMeal(meal,mi,di);
+  el.replaceWith(tmp.firstElementChild);
+}
+function tswp(btn){
+  const p=btn.closest('.mc').querySelector('.swpp');
+  const op=p.classList.contains('open');
+  document.querySelectorAll('.swpp.open').forEach(x=>x.classList.remove('open'));
+  if(!op) p.classList.add('open');
+}
+
+// ── RENDER EXERCISE CARD ──
+function rEx(ex){
+  const v=GIFS[ex.nm];
+  const bmap={warmup:'bwarm',strength:'bstr',cardio:'bcard',core:'bcore'};
+  const lmap={warmup:'Warm-up',strength:'Strength',cardio:'Cardio',core:'Core'};
+  const videoHtml=v
+    ? `<iframe
+        src="https://www.youtube.com/embed/${v.yt}?autoplay=1&mute=1&loop=1&playlist=${v.yt}&controls=1&modestbranding=1&rel=0&playsinline=1"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        loading="lazy">
+       </iframe>`
+    : `<div class="giffall"><div class="gi">🏋️</div><p>${ex.nm}</p></div>`;
+  return `<div class="exc">
+    <div class="ext">
+      <span class="etbadge ${bmap[ex.t]||'bstr'}">${lmap[ex.t]||ex.t}</span>
+      <div class="ex-card-top-info">
+        <div class="ex-ti">${ex.nm}</div>
+        <div class="ex-eq">🏋️ ${v?v.eq:'Gym Equipment'} &nbsp;·&nbsp; 💪 ${v?v.mu:'Multiple Muscles'}</div>
+      </div>
+    </div>
+    <div class="exb">
+      <div class="exd">
+        <div class="expills">
+          <div class="epill">📋 Sets: <b>${ex.s}</b></div>
+          <div class="epill">🔁 Reps: <b>${ex.r}</b></div>
+        </div>
+        <div class="etip">💡 ${ex.tip}</div>
+      </div>
+      <div class="gifp">
+        ${videoHtml}
+        <div class="giflbl">▶ <b>${ex.nm}</b> — Exercise Demo</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── GENERATE ──
+function gen(){
+  const name  =document.getElementById('iName').value||'Friend';
+  const age   =parseInt(document.getElementById('iAge').value)||28;
+  const height=parseInt(document.getElementById('iHeight').value)||160;
+  const weight=parseInt(document.getElementById('iWeight').value)||70;
+  const goal  =parseInt(document.getElementById('iGoal').value)||60;
+  const sex   =document.getElementById('iGender').value;
+  const pref  =rv('rFood');
+  const gd    =parseInt(rv('rGym'));
+  const lvl   =rv('rLevel');
+  if(!weight||!height||!goal){alert('Please enter height, weight and goal weight!');return;}
+
+  document.getElementById('landing').style.display='none';
+  document.getElementById('loading').style.display='flex';
+
+  setTimeout(()=>{
+    const kcal=calcKcal(weight,height,age,sex,gd);
+    const b=bmi(weight,height);
+    const [bl,bc]=bmiL(parseFloat(b));
+    const lose=Math.max(0,weight-goal);
+    const mon=Math.ceil(lose/0.75/4.3);
+
+    document.getElementById('pName').textContent=name;
+    document.getElementById('pSub').textContent=`${kcal} kcal/day · ${gd} gym days/week · ${pref} · ${lvl}`;
+    document.getElementById('statsEl').innerHTML=[
+      {v:b,               l:'BMI',        c:bc,     s:bl},
+      {v:kcal+' kcal',    l:'Daily Target',c:'',    s:'~500 kcal deficit'},
+      {v:lose+'kg',       l:'To Lose',    c:'warn',  s:'~'+mon+' months'},
+      {v:Math.round(kcal*.30/4)+'g',l:'Protein',c:'',s:'Daily target'},
+      {v:Math.round(kcal*.45/4)+'g',l:'Carbs',  c:'warn',s:'Daily target'},
+      {v:Math.round(kcal*.25/9)+'g',l:'Fat',    c:'',    s:'Daily target'},
+    ].map(s=>`<div class="sc ${s.c}"><span class="sv">${s.v}</span><span class="sl">${s.l}</span><div class="ss">${s.s}</div></div>`).join('');
+
+    // ── Diet ──
+    CP=mealData(kcal,pref);
+    const dTE=document.getElementById('dTabsEl'), dDE=document.getElementById('dDaysEl');
+    dTE.innerHTML=''; dDE.innerHTML='';
+    CP.forEach((d,di)=>{
+      const t=document.createElement('button');
+      t.className='dtab'+(di===0?' active':'');
+      t.textContent=d.day.slice(0,3);
+      t.onclick=()=>{
+        dTE.querySelectorAll('.dtab').forEach(x=>x.classList.remove('active'));
+        dDE.querySelectorAll('.dc').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('dc'+di).classList.add('active');
+      };
+      dTE.appendChild(t);
+      const div=document.createElement('div');
+      div.className='dc'+(di===0?' active':'');
+      div.id='dc'+di;
+      const totK=d.meals.reduce((a,m)=>a+(parseInt(m.main.m.k)||0),0);
+      div.innerHTML=d.meals.map((m,mi)=>rMeal(m,mi,di)).join('')
+        +`<div class="dtot"><h4>📊 ${d.day} Total</h4><div class="mcs">
+          <div class="mp pp"><span class="mv">~${d.meals.reduce((a,m)=>a+(parseInt(m.main.m.p)||0),0)}g</span><span class="ml">Protein</span></div>
+          <div class="mp cc"><span class="mv">~${d.meals.reduce((a,m)=>a+(parseInt(m.main.m.c)||0),0)}g</span><span class="ml">Carbs</span></div>
+          <div class="mp ff"><span class="mv">~${d.meals.reduce((a,m)=>a+(parseInt(m.main.m.f)||0),0)}g</span><span class="ml">Fat</span></div>
+          <div class="mp kk"><span class="mv">~${totK}</span><span class="ml">kcal</span></div>
+        </div></div>`;
+      dDE.appendChild(div);
+    });
+
+    // ── Gym ──
+    const GP=gymPlan(gd,lvl);
+    const gTE=document.getElementById('gTabsEl'), gDE=document.getElementById('gDaysEl');
+    gTE.innerHTML=''; gDE.innerHTML='';
+    const tabL=['Mon 🦵','Tue 🚶','Wed 💪','Thu 😴','Fri 🔥','Sat 🎯','Sun 🌿'];
+    GP.forEach((g,gi)=>{
+      const t=document.createElement('button');
+      t.className='gtab'+(gi===0?' active':'');
+      t.textContent=tabL[gi];
+      t.onclick=()=>{
+        gTE.querySelectorAll('.gtab').forEach(x=>x.classList.remove('active'));
+        gDE.querySelectorAll('.gdb').forEach(x=>x.style.display='none');
+        t.classList.add('active');
+        document.getElementById('gdb'+gi).style.display='block';
+      };
+      gTE.appendChild(t);
+
+      const div=document.createElement('div');
+      div.className='gdb';
+      div.id='gdb'+gi;
+      div.style.display=gi===0?'block':'none';
+
+      if(g.gym && Array.isArray(g.exs) && g.exs.length>0){
+        const lvlC=lvl.charAt(0).toUpperCase()+lvl.slice(1);
+        div.innerHTML=
+          `<div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 20px;margin-bottom:14px;">
+            <h3 style="font-family:'Playfair Display',serif;color:var(--blue);font-size:21px;">${g.day} — ${g.type}</h3>
+            <p style="font-size:12px;color:var(--muted);margin-top:5px;">📍 Indoor Gym &nbsp;·&nbsp; ${lvlC} Level &nbsp;·&nbsp; ~55–65 min &nbsp;·&nbsp; ${g.exs.length} exercises</p>
+          </div>`
+          + g.exs.map(ex=>rEx(ex)).join('');
+      } else {
+        div.innerHTML=`<div class="rc">
+          <div class="bi">🌿</div>
+          <h3>${g.day} — ${g.type}</h3>
+          <p>Recovery is when your body repairs muscle and gets stronger. Rest days are as important as training days.</p>
+          <div class="rchips">
+            <div class="rchip">🚶 30 min brisk walk</div>
+            <div class="rchip">🧘 Light yoga / stretching</div>
+            <div class="rchip">💧 Drink 3L water</div>
+            <div class="rchip">😴 Sleep 7–8 hours</div>
+            <div class="rchip">🍽️ Stick to your meal plan</div>
+          </div>
+        </div>`;
+      }
+      gDE.appendChild(div);
+    });
+
+    document.getElementById('loading').style.display='none';
+    document.getElementById('planPage').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  },1400);
+}
+
+function goBack(){
+  document.getElementById('planPage').style.display='none';
+  document.getElementById('landing').style.display='flex';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
